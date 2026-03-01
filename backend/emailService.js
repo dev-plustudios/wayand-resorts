@@ -1,14 +1,13 @@
 const nodemailer = require('nodemailer');
 
+
 const transporter = nodemailer.createTransport({
-  service: 'smtp.gmail.com',
+  service: "Gmail", // ✅ IMPORTANT
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    pass: process.env.EMAIL_PASS,
   },
-    tls: {
-    family: 4, // 🔥 FORCE IPv4
-  },
+  tls: { rejectUnauthorized: false },
 });
 
 const sendBookingEmail = async (bookingData) => {
