@@ -1,18 +1,6 @@
-const nodemailer = require("nodemailer");
-require("dns").setDefaultResultOrder("ipv4first"); // 🔥 Force IPv4 for Render
+const { Resend } = require("resend");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,                // ✅ Use 587 (NOT 465)
-  secure: false,            // Must be false for 587
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 10000, // Prevent hanging
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendBookingEmail = async (bookingData) => {
   const {
@@ -31,37 +19,25 @@ const sendBookingEmail = async (bookingData) => {
   const adminEmail = "pranavpranavc577@gmail.com";
 
   const htmlContent = `
-    <div style="font-family: Arial, sans-serif; color: #0B3D2E;">
-      <h2 style="color: #1F6F50;">AERO WAYANAD - New Booking Request</h2>
-      <p>Thank you for choosing Aero Wayanad. Here are your booking details:</p>
-      <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Name:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${name}</td></tr>
-        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Email:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${email}</td></tr>
-        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Phone:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${phone}</td></tr>
-        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Check-in:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${checkIn}</td></tr>
-        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Check-out:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${checkOut}</td></tr>
-        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Guests:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${guests}</td></tr>
-        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Room Type:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${roomType}</td></tr>
-        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Special Requests:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${specialRequests || "None"}</td></tr>
-        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Estimated Total Amount:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">₹${totalAmount}</td></tr>
-        <tr><td style="padding: 10px;"><strong>Requested On:</strong></td><td style="padding: 10px;">${timestamp}</td></tr>
-      </table>
-      <p style="margin-top: 20px; font-weight: bold; color: #FF7A00;">
-        Payment to be completed at the property on check-in day.
-      </p>
-    </div>
+    <h2>AERO WAYANAD - New Booking Request</h2>
+    <p><strong>Name:</strong> ${name}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Phone:</strong> ${phone}</p>
+    <p><strong>Check-in:</strong> ${checkIn}</p>
+    <p><strong>Check-out:</strong> ${checkOut}</p>
+    <p><strong>Guests:</strong> ${guests}</p>
+    <p><strong>Room Type:</strong> ${roomType}</p>
+    <p><strong>Special Requests:</strong> ${specialRequests || "None"}</p>
+    <p><strong>Total:</strong> ₹${totalAmount}</p>
+    <p><strong>Requested On:</strong> ${timestamp}</p>
   `;
 
-  const mailOptions = {
-    from: `"Aero Wayanad" <${process.env.EMAIL_USER}>`,
-    to: `${email}, ${adminEmail}`,
-    subject: `Booking Request Confirmation - Aero Wayanad - ${name}`,
+  await resend.emails.send({
+    from: "Aero Wayanad <onboarding@resend.dev>",
+    to: [email, adminEmail],
+    subject: `Booking Request - ${name}`,
     html: htmlContent,
-  };
-
-  await transporter.sendMail(mailOptions);
+  });
 };
 
-module.exports = {
-  sendBookingEmail,
-};
+module.exports = { sendBookingEmail };
