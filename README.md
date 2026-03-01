@@ -1,0 +1,1 @@
+# wayand-resorts
