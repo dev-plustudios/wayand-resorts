@@ -19,7 +19,7 @@ app.post('/api/booking', async (req, res) => {
         res.status(200).json({ success: true, message: 'Booking request sent successfully. Confirmation email sent.' });
     } catch (error) {
         console.error('Error processing booking:', error);
-        res.status(500).json({ success: false, message: 'Failed to process booking request.' });
+       res.status(500).json({ success: false, message: error.message });
     }
 });
 
