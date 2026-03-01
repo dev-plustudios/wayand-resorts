@@ -1,21 +1,34 @@
-const nodemailer = require('nodemailer');
-
+const nodemailer = require("nodemailer");
+require("dns").setDefaultResultOrder("ipv4first"); // 🔥 Force IPv4 for Render
 
 const transporter = nodemailer.createTransport({
-  service: "Gmail", // ✅ IMPORTANT
+  host: "smtp.gmail.com",
+  port: 587,                // ✅ Use 587 (NOT 465)
+  secure: false,            // Must be false for 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  tls: { rejectUnauthorized: false },
+  connectionTimeout: 10000, // Prevent hanging
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
 
 const sendBookingEmail = async (bookingData) => {
   const {
-    name, email, phone, checkIn, checkOut, guests, roomType, specialRequests, totalAmount, timestamp
+    name,
+    email,
+    phone,
+    checkIn,
+    checkOut,
+    guests,
+    roomType,
+    specialRequests,
+    totalAmount,
+    timestamp,
   } = bookingData;
 
-  const adminEmail = 'pranavpranavc577@gmail.com';
+  const adminEmail = "pranavpranavc577@gmail.com";
 
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; color: #0B3D2E;">
@@ -29,11 +42,13 @@ const sendBookingEmail = async (bookingData) => {
         <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Check-out:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${checkOut}</td></tr>
         <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Guests:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${guests}</td></tr>
         <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Room Type:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${roomType}</td></tr>
-        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Special Requests:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${specialRequests || 'None'}</td></tr>
+        <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Special Requests:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${specialRequests || "None"}</td></tr>
         <tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Estimated Total Amount:</strong></td><td style="padding: 10px; border-bottom: 1px solid #ddd;">₹${totalAmount}</td></tr>
         <tr><td style="padding: 10px;"><strong>Requested On:</strong></td><td style="padding: 10px;">${timestamp}</td></tr>
       </table>
-      <p style="margin-top: 20px; font-weight: bold; color: #FF7A00;">Payment to be completed at the property on check-in day.</p>
+      <p style="margin-top: 20px; font-weight: bold; color: #FF7A00;">
+        Payment to be completed at the property on check-in day.
+      </p>
     </div>
   `;
 
@@ -48,5 +63,5 @@ const sendBookingEmail = async (bookingData) => {
 };
 
 module.exports = {
-  sendBookingEmail
+  sendBookingEmail,
 };
